@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 
 import { RiAdminFill } from "react-icons/ri";
-import { FaPaintBrush } from "react-icons/fa";
+import { FaPaintBrush, FaKey } from "react-icons/fa";
 import { BiSolidCommentError } from "react-icons/bi";
 import { IoLogOutSharp } from "react-icons/io5";
 import { IoChatboxEllipsesSharp } from "react-icons/io5";
@@ -17,6 +17,7 @@ import SettingsComponent from "./SettingsComponent";
 import InfoComponent from "../Navigation/InfoComponent";
 import SuggestionView from "./SuggestionView";
 import InfoView from "./InfoView";
+import ApiKeyView from "./ApiKeyView";
 
 interface SettingsViewProps {
   selectedTheme: Theme;
@@ -39,7 +40,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   credentials,
 }) => {
   const [settingMode, setSettingMode] = useState<
-    "INFO" | "ADMIN" | "THEME" | "SUGGESTIONS" | "CACHE"
+    "INFO" | "ADMIN" | "THEME" | "SUGGESTIONS" | "CACHE" | "API_KEYS"
   >("INFO");
 
   return (
@@ -75,6 +76,13 @@ const SettingsView: React.FC<SettingsViewProps> = ({
               selected={settingMode === "SUGGESTIONS"}
               selected_color="bg-secondary-verba"
               Icon={IoChatboxEllipsesSharp}
+            />
+            <VerbaButton
+              title="API Keys"
+              onClick={() => setSettingMode("API_KEYS")}
+              selected={settingMode === "API_KEYS"}
+              selected_color="bg-secondary-verba"
+              Icon={FaKey}
             />
           </div>
           <div className="bg-bg-alt-verba gap-2 rounded-2xl flex flex-col p-6 w-full overflow-y-auto overflow-x-hidden">
@@ -118,6 +126,12 @@ const SettingsView: React.FC<SettingsViewProps> = ({
             )}
             {settingMode === "SUGGESTIONS" && (
               <SuggestionView
+                credentials={credentials}
+                addStatusMessage={addStatusMessage}
+              />
+            )}
+            {settingMode === "API_KEYS" && (
+              <ApiKeyView
                 credentials={credentials}
                 addStatusMessage={addStatusMessage}
               />

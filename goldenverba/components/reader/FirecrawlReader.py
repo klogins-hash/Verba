@@ -103,8 +103,8 @@ class FirecrawlReader(Reader):
         """
         Perform scraping or crawling using Firecrawl API.
         """
-        crawl_url = "https://api.firecrawl.dev/v0/crawl"
-        scrape_url = "https://api.firecrawl.dev/v0/scrape"
+        crawl_url = "https://api.firecrawl.dev/v2/crawl"
+        scrape_url = "https://api.firecrawl.dev/v2/scrape"
         documents = []
 
         headers = {
@@ -150,11 +150,14 @@ class FirecrawlReader(Reader):
             scrape_url, headers=headers, json=request_data
         ) as response:
             response_data = await self.handle_response(response)
-            if "data" in response_data and response_data.get("success", False):
+            if "data" in response_data and response_data.get("success", True):
+                data = response_data["data"]
+                title = data.get("metadata", {}).get("title", "Untitled")
+                markdown = data.get("markdown", "")
                 return [
                     (
-                        response_data["data"]["metadata"]["title"],
-                        response_data["data"]["markdown"],
+                        title,
+                        markdown,
                         request_data["url"],
                     )
                 ]
@@ -223,9 +226,9 @@ class FirecrawlReader(Reader):
                     msg.good("Firecrawl Job successful")
                     documents.extend(
                         (
-                            file["metadata"]["title"],
-                            file["markdown"],
-                            file["metadata"]["sourceURL"],
+                            file.get("metadata", {}).get("title", "Untitled"),
+                            file.get("markdown", ""),
+                            file.get("metadata", {}).get("sourceURL", file.get("url", "")),
                         )
                         for file in files
                     )
