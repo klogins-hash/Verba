@@ -10,23 +10,21 @@ ENV PYTHONUNBUFFERED=1 \
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    wget \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+# Install system dependencies (split for memory efficiency)
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends build-essential wget curl
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean
 
 # Copy requirements first for better caching
 COPY setup.py /app/
 COPY README.md /app/
 COPY goldenverba/ /app/goldenverba/
 
-# Install Python dependencies with optimizations
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir . && \
-    pip cache purge
+# Install Python dependencies (split for memory efficiency)
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir setuptools wheel
+RUN pip install --no-cache-dir .
+RUN pip cache purge || true
 
 # Copy the rest of the application
 COPY . /app/
@@ -42,8 +40,9 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:${PORT:-8000}/ || exit 1
 
 # Create non-root user for security
-RUN groupadd -r verba && useradd -r -g verba verba && \
-    chown -R verba:verba /app
+RUN groupadd -r verba
+RUN useradd -r -g verba verba
+RUN chown -R verba:verba /app
 USER verba
 
 # Start command (Railway will override with railway.json)
