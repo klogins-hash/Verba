@@ -1,4 +1,5 @@
 from setuptools import find_packages, setup
+import os
 
 setup(
     name="goldenverba",
@@ -13,7 +14,7 @@ setup(
     author="Weaviate",
     author_email="edward@weaviate.io",
     description="Welcome to Verba: The Golden RAGtriever, an open-source initiative designed to offer a streamlined, user-friendly interface for Retrieval-Augmented Generation (RAG) applications. In just a few easy steps, dive into your data and make meaningful interactions!",
-    long_description=open("README.md", encoding="utf-8").read(),
+    long_description=open("README.md", encoding="utf-8").read() if os.path.exists("README.md") else "Verba - The Golden RAGtriever",
     long_description_content_type="text/markdown",
     url="https://github.com/weaviate/Verba",
     classifiers=[
