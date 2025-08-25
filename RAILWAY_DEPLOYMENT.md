@@ -25,29 +25,36 @@ This repository includes Railway-optimized files:
 
 ### 3. Environment Variables
 
-Set these in your Railway project dashboard:
+**IMPORTANT**: All API keys should be configured in Railway Environment Variables, not in code files. This ensures security and proper environment separation.
 
-#### Required
-```
-PORT=8000
-DEFAULT_DEPLOYMENT=Local
-```
+#### Required Variables
+- `PORT`: Set to `8000` (Railway will provide this automatically)
+- `DEFAULT_DEPLOYMENT`: Set to `Local`
 
-#### LLM Providers (choose one or more)
-```
-OPENAI_API_KEY=your-openai-api-key
-ANTHROPIC_API_KEY=your-anthropic-api-key
-COHERE_API_KEY=your-cohere-api-key
-GROQ_API_KEY=your-groq-api-key
-```
+#### API Keys Configuration
+Configure these in Railway's Environment Variables section (not in code):
 
-#### Optional Services
-```
-WEAVIATE_URL_VERBA=your-weaviate-url
-WEAVIATE_API_KEY_VERBA=your-weaviate-api-key
-UNSTRUCTURED_API_KEY=your-unstructured-api-key
-ASSEMBLYAI_API_KEY=your-assemblyai-api-key
-```
+##### LLM Providers
+- `OPENAI_API_KEY`: Your OpenAI API key for GPT models
+- `ANTHROPIC_API_KEY`: Your Anthropic API key for Claude models  
+- `COHERE_API_KEY`: Your Cohere API key for embeddings/generation
+- `GROQ_API_KEY`: Your Groq API key for fast inference
+
+##### Embedding Services
+- `VOYAGE_API_KEY`: Your VoyageAI API key for embeddings
+- `UPSTAGE_API_KEY`: Your Upstage API key for document parsing
+
+##### Data Ingestion
+- `FIRECRAWL_API_KEY`: Your Firecrawl API key for web scraping
+- `UNSTRUCTURED_API_KEY`: Your Unstructured API key for document parsing
+- `ASSEMBLYAI_API_KEY`: Your AssemblyAI API key for audio processing
+
+### How to Set Environment Variables in Railway
+1. Go to your Railway project dashboard
+2. Click on your service
+3. Navigate to the "Variables" tab
+4. Add each API key as a new variable
+5. Deploy your changes
 
 ### 4. Deployment Steps
 
