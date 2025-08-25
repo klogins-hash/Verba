@@ -5,7 +5,7 @@
     "dockerfilePath": "Dockerfile.railway"
   },
   "deploy": {
-    "startCommand": "python -m uvicorn goldenverba.server.api:app --host 0.0.0.0 --port $PORT --workers 1 --timeout-keep-alive 65",
+    "startCommand": "sh -c 'python -m uvicorn goldenverba.server.api:app --host 0.0.0.0 --port ${PORT} --workers 1 --timeout-keep-alive 65'",
     "healthcheckPath": "/",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
