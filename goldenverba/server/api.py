@@ -86,11 +86,13 @@ async def check_same_origin(request: Request, call_next):
         return await call_next(request)
 
     origin = request.headers.get("origin")
-    if origin == str(request.base_url).rstrip("/") or (
-        origin
-        and origin.startswith("http://localhost:")
-        and request.base_url.hostname == "localhost"
-    ):
+    host = request.headers.get("host")
+    
+    # Allow Railway deployment domains
+    if (origin == str(request.base_url).rstrip("/") or 
+        (origin and origin.startswith("http://localhost:") and request.base_url.hostname == "localhost") or
+        (origin and host and origin.endswith(host)) or
+        (host and "railway.app" in host)):
         return await call_next(request)
     else:
         # Only apply restrictions to /api/ routes (except /api/health)
