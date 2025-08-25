@@ -1,7 +1,6 @@
 # Railway-optimized .dockerignore
 .git
 .gitignore
-README.md
 Dockerfile
 docker-compose.yml
 .dockerignore

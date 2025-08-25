@@ -10,14 +10,14 @@ ENV PYTHONUNBUFFERED=1 \
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies (split for memory efficiency)
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends build-essential wget curl
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean
+# Install system dependencies (optimized for Railway)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential wget curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
 
 # Copy requirements first for better caching
 COPY setup.py /app/
-COPY README.md /app/
 COPY goldenverba/ /app/goldenverba/
 
 # Install Python dependencies (split for memory efficiency)
