@@ -1,0 +1,37 @@
+# Railway-optimized Dockerfile for Verba
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    wget \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY setup.py /app/
+COPY README.md /app/
+COPY goldenverba/ /app/goldenverba/
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir .
+
+# Copy the rest of the application
+COPY . /app/
+
+# Create data directory
+RUN mkdir -p /app/data
+
+# Expose port (Railway will set PORT env var)
+EXPOSE $PORT
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:$PORT/ || exit 1
+
+# Start command (Railway will override with railway.json)
+CMD ["verba", "start", "--port", "8000", "--host", "0.0.0.0"]

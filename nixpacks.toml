@@ -1,0 +1,15 @@
+# Nixpacks configuration for Railway
+[phases.setup]
+nixPkgs = ["python311", "pip"]
+
+[phases.install]
+cmds = [
+    "pip install --upgrade pip",
+    "pip install -e ."
+]
+
+[phases.build]
+cmds = ["echo 'Build phase complete'"]
+
+[start]
+cmd = "verba start --port $PORT --host 0.0.0.0"
