@@ -81,20 +81,20 @@ app.add_middleware(
 # Custom middleware to check if the request is from the same origin
 @app.middleware("http")
 async def check_same_origin(request: Request, call_next):
+    # Skip CORS checks for Railway deployments
+    host = request.headers.get("host", "")
+    if "railway.app" in host:
+        return await call_next(request)
+    
     # Allow public access to /api/health
     if request.url.path == "/api/health":
         return await call_next(request)
 
-    # For Railway deployment, allow all requests from the same host
-    host = request.headers.get("host")
     origin = request.headers.get("origin")
     
-    # Allow if no origin header (direct API calls) or if origin matches host
-    if (not origin or 
-        origin == str(request.base_url).rstrip("/") or 
-        (origin and host and (origin.endswith(host) or f"://{host}" in origin)) or
-        (origin and origin.startswith("http://localhost:")) or
-        (host and "railway.app" in host)):
+    # Allow localhost and same origin
+    if (origin == str(request.base_url).rstrip("/") or 
+        (origin and origin.startswith("http://localhost:") and request.base_url.hostname == "localhost")):
         return await call_next(request)
     else:
         # Only apply restrictions to /api/ routes (except /api/health)
