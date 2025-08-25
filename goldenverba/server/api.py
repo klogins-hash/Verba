@@ -85,13 +85,15 @@ async def check_same_origin(request: Request, call_next):
     if request.url.path == "/api/health":
         return await call_next(request)
 
-    origin = request.headers.get("origin")
+    # For Railway deployment, allow all requests from the same host
     host = request.headers.get("host")
+    origin = request.headers.get("origin")
     
-    # Allow Railway deployment domains
-    if (origin == str(request.base_url).rstrip("/") or 
-        (origin and origin.startswith("http://localhost:") and request.base_url.hostname == "localhost") or
-        (origin and host and origin.endswith(host)) or
+    # Allow if no origin header (direct API calls) or if origin matches host
+    if (not origin or 
+        origin == str(request.base_url).rstrip("/") or 
+        (origin and host and (origin.endswith(host) or f"://{host}" in origin)) or
+        (origin and origin.startswith("http://localhost:")) or
         (host and "railway.app" in host)):
         return await call_next(request)
     else:
@@ -103,11 +105,10 @@ async def check_same_origin(request: Request, call_next):
                     "error": "Not allowed",
                     "details": {
                         "request_origin": origin,
+                        "request_host": host,
                         "expected_origin": str(request.base_url),
                         "request_method": request.method,
                         "request_url": str(request.url),
-                        "request_headers": dict(request.headers),
-                        "expected_header": "Origin header matching the server's base URL or localhost",
                     },
                 },
             )
