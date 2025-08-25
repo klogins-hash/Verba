@@ -60,6 +60,7 @@ class FirecrawlReader(Reader):
             "FIRECRAWL_API_KEY",
             "No Firecrawl API Key detected",
         )
+        msg.info(f"Using Firecrawl API Key: {token[:8]}...{token[-4:] if len(token) > 12 else token}")
 
         raw_documents = await self.firecrawl(mode, urls, token)
         documents = []
@@ -94,8 +95,12 @@ class FirecrawlReader(Reader):
         """
         if response.status != 200:
             text = await response.text()
+            msg.fail(f"Firecrawl API Error: {response.status} - {text}")
             raise Exception(f"Firecrawl Error: {response.status}, {text}")
-        return await response.json()
+        
+        response_data = await response.json()
+        msg.info(f"Firecrawl API Response: {response_data}")
+        return response_data
 
     async def firecrawl(
         self, mode: str, urls: List[str], token: str
@@ -112,9 +117,13 @@ class FirecrawlReader(Reader):
             "Authorization": f"Bearer {token}",
         }
 
+        msg.info(f"Starting Firecrawl {mode} for {len(urls)} URLs")
+        msg.info(f"API Key present: {'Yes' if token else 'No'}")
+        
         async with aiohttp.ClientSession() as session:
             tasks = []
             for url in urls:
+                msg.info(f"Processing URL: {url}")
                 request_data = {"url": url}
                 if mode == "Scrape":
                     task = self.scrape_url(session, scrape_url, headers, request_data)
