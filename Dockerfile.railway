@@ -1,6 +1,12 @@
 # Railway-optimized Dockerfile for Verba
 FROM python:3.11-slim
 
+# Set environment variables for Railway
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
 # Set working directory
 WORKDIR /app
 
@@ -9,16 +15,18 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     wget \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Copy requirements first for better caching
 COPY setup.py /app/
 COPY README.md /app/
 COPY goldenverba/ /app/goldenverba/
 
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip
-RUN pip install --no-cache-dir .
+# Install Python dependencies with optimizations
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir . && \
+    pip cache purge
 
 # Copy the rest of the application
 COPY . /app/
@@ -33,5 +41,10 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:${PORT:-8000}/ || exit 1
 
+# Create non-root user for security
+RUN groupadd -r verba && useradd -r -g verba verba && \
+    chown -R verba:verba /app
+USER verba
+
 # Start command (Railway will override with railway.json)
-CMD ["verba", "start", "--port", "8000", "--host", "0.0.0.0"]
+CMD ["python", "-m", "uvicorn", "goldenverba.server.api:app", "--host", "0.0.0.0", "--port", "8000"]

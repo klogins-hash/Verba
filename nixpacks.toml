@@ -4,7 +4,7 @@ nixPkgs = ["python311", "pip"]
 
 [phases.install]
 cmds = [
-    "pip install --upgrade pip",
+    "pip install --upgrade pip setuptools wheel",
     "pip install -e ."
 ]
 
@@ -12,4 +12,4 @@ cmds = [
 cmds = ["echo 'Build phase complete'"]
 
 [start]
-cmd = "verba start --port $PORT --host 0.0.0.0"
+cmd = "python -m uvicorn goldenverba.server.api:app --host 0.0.0.0 --port $PORT --workers 1 --timeout-keep-alive 65"
